@@ -73,9 +73,7 @@ export const columns: ColumnDef<DaftarRow>[] = [
 									asal_sekolah: row.getValue("asal_sekolah"),
 									no_pendaftaran: row.getValue("no_pendaftaran"),
 								};
-								const id = row.getValue<string>("no_pendaftaran");
 								localStorage.setItem("me", JSON.stringify(data));
-								localStorage.setItem("me_id", id);
 							}}
 						>
 							<UserIcon data-icon="inline-start" />

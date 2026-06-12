@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as appRouteRouteImport } from './routes/(app)/route'
 import { Route as appIndexRouteImport } from './routes/(app)/index'
 import { Route as ApiMadrasahRouteImport } from './routes/api/madrasah'
+import { Route as appListRouteImport } from './routes/(app)/list'
+import { Route as ApiCariIndexRouteImport } from './routes/api/cari/index'
 import { Route as ApiDaftarId_sekolahRouteImport } from './routes/api/daftar/$id_sekolah'
 
 const appRouteRoute = appRouteRouteImport.update({
@@ -28,6 +30,16 @@ const ApiMadrasahRoute = ApiMadrasahRouteImport.update({
   path: '/api/madrasah',
   getParentRoute: () => rootRouteImport,
 } as any)
+const appListRoute = appListRouteImport.update({
+  id: '/list',
+  path: '/list',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const ApiCariIndexRoute = ApiCariIndexRouteImport.update({
+  id: '/api/cari/',
+  path: '/api/cari/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDaftarId_sekolahRoute = ApiDaftarId_sekolahRouteImport.update({
   id: '/api/daftar/$id_sekolah',
   path: '/api/daftar/$id_sekolah',
@@ -35,39 +47,53 @@ const ApiDaftarId_sekolahRoute = ApiDaftarId_sekolahRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/list': typeof appListRoute
   '/api/madrasah': typeof ApiMadrasahRoute
   '/': typeof appIndexRoute
   '/api/daftar/$id_sekolah': typeof ApiDaftarId_sekolahRoute
+  '/api/cari/': typeof ApiCariIndexRoute
 }
 export interface FileRoutesByTo {
+  '/list': typeof appListRoute
   '/api/madrasah': typeof ApiMadrasahRoute
   '/': typeof appIndexRoute
   '/api/daftar/$id_sekolah': typeof ApiDaftarId_sekolahRoute
+  '/api/cari': typeof ApiCariIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(app)': typeof appRouteRouteWithChildren
+  '/(app)/list': typeof appListRoute
   '/api/madrasah': typeof ApiMadrasahRoute
   '/(app)/': typeof appIndexRoute
   '/api/daftar/$id_sekolah': typeof ApiDaftarId_sekolahRoute
+  '/api/cari/': typeof ApiCariIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/api/madrasah' | '/' | '/api/daftar/$id_sekolah'
+  fullPaths:
+    | '/list'
+    | '/api/madrasah'
+    | '/'
+    | '/api/daftar/$id_sekolah'
+    | '/api/cari/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/api/madrasah' | '/' | '/api/daftar/$id_sekolah'
+  to: '/list' | '/api/madrasah' | '/' | '/api/daftar/$id_sekolah' | '/api/cari'
   id:
     | '__root__'
     | '/(app)'
+    | '/(app)/list'
     | '/api/madrasah'
     | '/(app)/'
     | '/api/daftar/$id_sekolah'
+    | '/api/cari/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   appRouteRoute: typeof appRouteRouteWithChildren
   ApiMadrasahRoute: typeof ApiMadrasahRoute
   ApiDaftarId_sekolahRoute: typeof ApiDaftarId_sekolahRoute
+  ApiCariIndexRoute: typeof ApiCariIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -93,6 +119,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMadrasahRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(app)/list': {
+      id: '/(app)/list'
+      path: '/list'
+      fullPath: '/list'
+      preLoaderRoute: typeof appListRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/api/cari/': {
+      id: '/api/cari/'
+      path: '/api/cari'
+      fullPath: '/api/cari/'
+      preLoaderRoute: typeof ApiCariIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/daftar/$id_sekolah': {
       id: '/api/daftar/$id_sekolah'
       path: '/api/daftar/$id_sekolah'
@@ -104,10 +144,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface appRouteRouteChildren {
+  appListRoute: typeof appListRoute
   appIndexRoute: typeof appIndexRoute
 }
 
 const appRouteRouteChildren: appRouteRouteChildren = {
+  appListRoute: appListRoute,
   appIndexRoute: appIndexRoute,
 }
 
@@ -119,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   appRouteRoute: appRouteRouteWithChildren,
   ApiMadrasahRoute: ApiMadrasahRoute,
   ApiDaftarId_sekolahRoute: ApiDaftarId_sekolahRoute,
+  ApiCariIndexRoute: ApiCariIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

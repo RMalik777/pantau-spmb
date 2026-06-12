@@ -30,3 +30,23 @@ export type DaftarResponse = {
 	rows_per_page: number;
 	signature: string;
 };
+
+export type DetailProperty = {
+	key: string | null;
+	label: string;
+	value: string | number;
+};
+
+export type DetailSection = {
+	id: string | null;
+	header: string;
+	description: string | null;
+	metadata?: Record<string, string | number>;
+	properties: DetailProperty[];
+	children?: DetailSection[];
+};
+
+export type DetailResponse = {
+	success: boolean;
+	data: DetailSection[];
+};
