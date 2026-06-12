@@ -2,9 +2,10 @@ import { queryOptions } from "@tanstack/react-query";
 import { api } from "@/lib/fetch/client";
 import type { DaftarResponse } from "@/lib/types";
 
-export const daftarList = (lokasiId: number) =>
+export const daftarList = ({ locationId, schoolId }: { locationId: number; schoolId: number }) =>
 	queryOptions({
-		queryKey: ["daftarList", lokasiId],
-		queryFn: async () => await api.get(`api/daftar/${lokasiId}`).json<DaftarResponse>(),
+		queryKey: ["daftarList", locationId, schoolId],
+		queryFn: async () =>
+			await api.get(`api/daftar/${locationId}/${schoolId}`).json<DaftarResponse>(),
 		retry: false,
 	});

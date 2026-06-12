@@ -47,17 +47,20 @@ function MadrasahCard({ item, nameSearch }: Readonly<{ item: Madrasah; nameSearc
 		data: daftar,
 		isLoading,
 		isFetching,
-	} = useQuery({ ...daftarList(item.lokasi_id), enabled: true });
+	} = useQuery({
+		...daftarList({ locationId: item.lokasi_id, schoolId: item.sekolah_id }),
+		enabled: true,
+	});
 
 	function handleRefresh() {
 		queryClient.invalidateQueries({
-			queryKey: daftarList(item.lokasi_id).queryKey,
+			queryKey: daftarList({ locationId: item.lokasi_id, schoolId: item.sekolah_id }).queryKey,
 		});
 	}
 
 	let rows = daftar ? daftar.data : null;
 	if (rows && forceLoad) {
-		rows = rows.filter((row) => row[3].toLowerCase().includes(nameSearch.toLowerCase()));
+		rows = rows.filter((row) => row.nama.toLowerCase().includes(nameSearch.toLowerCase()));
 	}
 
 	if (forceLoad && daftar && rows!.length === 0) return null;
@@ -100,7 +103,7 @@ function MadrasahCard({ item, nameSearch }: Readonly<{ item: Madrasah; nameSearc
 					)}
 					{rows &&
 						(() => {
-							const scores = rows.map((row) => Number(row[5])).filter((n) => !Number.isNaN(n));
+							const scores = rows.map((row) => Number(row.nilai)).filter((n) => !Number.isNaN(n));
 							const highest = scores.length ? Math.max(...scores) : null;
 							const lowest = scores.length ? Math.min(...scores) : null;
 							return (
@@ -147,7 +150,7 @@ function MadrasahCard({ item, nameSearch }: Readonly<{ item: Madrasah; nameSearc
 										data={rows}
 										filterColumn={forceLoad ? undefined : "nama"}
 										filterPlaceholder="Cari nama..."
-										initialColumnVisibility={{ no_pendaftaran: false, id: false }}
+										initialColumnVisibility={{ no_peserta: false }}
 									/>
 								</>
 							);
@@ -179,7 +182,9 @@ function Home() {
 		: madrasahData;
 
 	const daftarResults = useQueries({
-		queries: byMadrasah.map((item) => daftarList(item.lokasi_id)),
+		queries: byMadrasah.map((item) =>
+			daftarList({ locationId: item.lokasi_id, schoolId: item.sekolah_id }),
+		),
 	});
 
 	const filtered = nameSearch
@@ -187,7 +192,7 @@ function Home() {
 				const daftar = daftarResults[i]?.data;
 				if (!daftar) return [];
 				const matches = daftar.data.some((row) =>
-					row[3].toLowerCase().includes(nameSearch.toLowerCase()),
+					row.nama.toLowerCase().includes(nameSearch.toLowerCase()),
 				);
 				return matches ? [{ item, isLoading: false }] : [];
 			})

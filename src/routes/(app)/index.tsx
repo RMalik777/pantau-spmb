@@ -35,7 +35,7 @@ type MeData = {
 	nama: string;
 	nilai: string;
 	asal_sekolah: string;
-	no_pendaftaran: string;
+	no_peserta: string;
 };
 
 function extractPosition(sections: DetailSection[]): {
@@ -101,7 +101,7 @@ function MePositionContent({
 
 function MeCard({ me }: Readonly<{ me: MeData }>) {
 	const { data: detailData, isLoading } = useQuery({
-		...dataDaftar(me.no_pendaftaran),
+		...dataDaftar(me.no_peserta),
 	});
 	const mePosition = detailData ? extractPosition(detailData.data) : null;
 
@@ -122,7 +122,7 @@ function MeCard({ me }: Readonly<{ me: MeData }>) {
 				</span>
 				<span className="text-muted-foreground">
 					No. Daftar:{" "}
-					<span className="text-foreground font-medium tabular-nums">{me.no_pendaftaran}</span>
+					<span className="text-foreground font-medium tabular-nums">{me.no_peserta}</span>
 				</span>
 			</CardContent>
 			<CardFooter className="text-right">
@@ -136,7 +136,7 @@ function MeCard({ me }: Readonly<{ me: MeData }>) {
 	);
 }
 
-type DaftarQuery = { data?: { data: [number, string, string, string, string, string][] } };
+type DaftarQuery = { data?: { data: { nilai: string }[] } };
 
 function median(scores: number[]): number | null {
 	if (!scores.length) return null;
@@ -174,7 +174,7 @@ function computeStats(madrasahData: Madrasah[], daftarQueries: DaftarQuery[]) {
 	for (let i = 0; i < madrasahData.length; i++) {
 		const m = madrasahData[i];
 		const rows = daftarQueries[i]?.data?.data ?? [];
-		const scores = rows.map((row) => Number(row[5])).filter((n) => !Number.isNaN(n));
+		const scores = rows.map((row) => Number(row.nilai)).filter((n) => !Number.isNaN(n));
 		const max = scores.length ? Math.max(...scores) : null;
 		const min = scores.length ? Math.min(...scores) : null;
 		const mean = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
@@ -245,7 +245,9 @@ function Home() {
 	}, []);
 
 	const daftarQueries = useQueries({
-		queries: madrasahData.map((item) => daftarList(item.lokasi_id)),
+		queries: madrasahData.map((item) =>
+			daftarList({ locationId: item.lokasi_id, schoolId: item.sekolah_id }),
+		),
 	});
 
 	const isLoading = daftarQueries.some((q) => q.isLoading);

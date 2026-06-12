@@ -27,38 +27,32 @@ function SortHeader({ label, column }: Readonly<{ label: string; column: Column<
 export const columns: ColumnDef<DaftarRow>[] = [
 	{
 		id: "rank",
-		accessorFn: (row) => row[0],
+		accessorKey: "rank",
 		header: ({ column }) => <SortHeader label="No" column={column} />,
 		size: 60,
 	},
 	{
-		id: "id",
-		accessorFn: (row) => row[1],
-		header: "ID",
-		size: 100,
-	},
-	{
 		id: "nama",
-		accessorFn: (row) => decodeHtml(row[3]),
+		accessorFn: (row) => decodeHtml(row.nama),
 		header: ({ column }) => <SortHeader label="Nama" column={column} />,
 	},
 	{
 		id: "nilai",
-		accessorFn: (row) => row[5],
+		accessorKey: "nilai",
 		header: ({ column }) => <SortHeader label="Nilai" column={column} />,
 		cell: ({ row }) => <div className="tabular-nums">{row.getValue("nilai")}</div>,
 		size: 125,
 	},
 	{
 		id: "asal_sekolah",
-		accessorFn: (row) => row[4],
+		accessorKey: "asal_sekolah",
 		header: ({ column }) => <SortHeader label="Asal Sekolah" column={column} />,
 		size: 300,
 	},
 	{
-		id: "no_pendaftaran",
-		accessorFn: (row) => row[2],
-		header: ({ column }) => <SortHeader label="No. Daftar" column={column} />,
+		id: "no_peserta",
+		accessorKey: "no_peserta",
+		header: ({ column }) => <SortHeader label="No. Peserta" column={column} />,
 		size: 150,
 	},
 	{
@@ -77,7 +71,7 @@ export const columns: ColumnDef<DaftarRow>[] = [
 									nama: row.getValue("nama"),
 									nilai: row.getValue("nilai"),
 									asal_sekolah: row.getValue("asal_sekolah"),
-									no_pendaftaran: row.getValue("no_pendaftaran"),
+									no_peserta: row.getValue("no_peserta"),
 								};
 								localStorage.setItem("me", JSON.stringify(data));
 							}}
