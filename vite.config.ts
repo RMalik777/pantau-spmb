@@ -10,6 +10,15 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 
 const config = defineConfig({
 	resolve: { tsconfigPaths: true },
+	server: {
+		proxy: {
+			"/pmb-api": {
+				target: "https://pmb-madrasahdki.com",
+				changeOrigin: true,
+				rewrite: (path) => path.replace(/^\/pmb-api/, ""),
+			},
+		},
+	},
 	plugins: [
 		devtools(),
 		cloudflare({ viteEnvironment: { name: "ssr" } }),
