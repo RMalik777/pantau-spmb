@@ -56,6 +56,9 @@ importers:
       lucide-react:
         specifier: ^0.577.0
         version: 0.577.0(react@19.2.7)
+      onedollarstats:
+        specifier: ^0.0.23
+        version: 0.0.23(react@19.2.7)
       radix-ui:
         specifier: ^1.5.0
         version: 1.5.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -3770,6 +3773,20 @@ packages:
 
   once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
+
+  onedollarstats@0.0.23:
+    resolution: {integrity: sha512-wn8hy4wDJjeC9+1lVcKyLQ69iWmyIKx55t4IehaaJhDW/P1lbAXV25CDsICgAGbtljyszNpAf9hzr09af8Waxw==}
+    peerDependencies:
+      expo-router: '>=3.0.0'
+      react: '>=18.0.0'
+      react-native: '>=0.73.0'
+    peerDependenciesMeta:
+      expo-router:
+        optional: true
+      react:
+        optional: true
+      react-native:
+        optional: true
 
   onetime@5.1.2:
     resolution: {integrity: sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==}
@@ -8131,6 +8148,10 @@ snapshots:
   once@1.4.0:
     dependencies:
       wrappy: 1.0.2
+
+  onedollarstats@0.0.23(react@19.2.7):
+    optionalDependencies:
+      react: 19.2.7
 
   onetime@5.1.2:
     dependencies:
