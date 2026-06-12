@@ -7,4 +7,5 @@ export const dataDaftar = (noDaftar: string) =>
 		queryKey: ["dataDaftar", noDaftar],
 		queryFn: async () => await api.get(`api/cari?no_daftar=${noDaftar}`).json<DetailResponse>(),
 		retry: false,
+		staleTime: 1 * 60 * 1000, // 1 minute
 	});

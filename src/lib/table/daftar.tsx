@@ -50,6 +50,13 @@ export const columns: ColumnDef<DaftarRow>[] = [
 		size: 300,
 	},
 	{
+		id: "umur",
+		accessorKey: "umur",
+		header: ({ column }) => <SortHeader label="Umur" column={column} />,
+		cell: ({ row }) => <div className="tabular-nums">{row.getValue("umur")}</div>,
+		size: 100,
+	},
+	{
 		id: "no_peserta",
 		accessorKey: "no_peserta",
 		header: ({ column }) => <SortHeader label="No. Peserta" column={column} />,

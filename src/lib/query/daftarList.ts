@@ -8,4 +8,5 @@ export const daftarList = ({ locationId, schoolId }: { locationId: number; schoo
 		queryFn: async () =>
 			await api.get(`api/daftar/${locationId}/${schoolId}`).json<DaftarResponse>(),
 		retry: false,
+		staleTime: 1 * 60 * 1000, // 1 minute
 	});
