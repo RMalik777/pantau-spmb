@@ -76,7 +76,7 @@ export function DataTable<TData, TValue>({
 							</Button>
 						}
 					/>
-					<DropdownMenuContent align="end">
+					<DropdownMenuContent align="end" className="w-fit">
 						{table
 							.getAllColumns()
 							.filter((col) => col.getCanHide())
@@ -96,7 +96,7 @@ export function DataTable<TData, TValue>({
 
 			<div className="overflow-auto rounded-md border" style={{ maxHeight }}>
 				<table className="w-full caption-bottom text-sm">
-					<TableHeader>
+					<TableHeader className="">
 						{table.getHeaderGroups().map((headerGroup) => (
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => (

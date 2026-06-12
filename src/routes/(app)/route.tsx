@@ -13,7 +13,7 @@ function RouteComponent() {
 	return (
 		<>
 			<Navbar />
-			<div className="px-4 py-6 pb-8 sm:px-8 lg:px-16">
+			<div className="px-6 py-18 pb-32 sm:px-8 lg:px-16">
 				<Outlet />
 			</div>
 		</>

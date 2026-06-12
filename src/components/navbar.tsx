@@ -10,8 +10,8 @@ const navItems = [
 ];
 export function Navbar() {
 	return (
-		<nav className="bg-background fixed inset-0 h-fit w-full">
-			<div className="flex h-fit flex-row items-start gap-4 p-4 sm:px-8 lg:px-16">
+		<nav className="bg-background fixed inset-0 z-10 h-fit w-full border-b">
+			<div className="flex h-fit flex-row items-start gap-4 p-4 px-6 sm:px-8 lg:px-16">
 				<p className="text-xl font-bold">Pantau SPMB</p>
 				{navItems.map((item) => (
 					<Link key={item.to} to={item.to} className={buttonVariants({ variant: "link" })}>
