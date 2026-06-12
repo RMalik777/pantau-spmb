@@ -8,11 +8,12 @@ import {
 	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
+	getPaginationRowModel,
 	getSortedRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
 import { useState } from "react";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -22,6 +23,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+	SelectGroup,
+} from "@/components/ui/select";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -29,7 +38,6 @@ interface DataTableProps<TData, TValue> {
 	filterColumn?: string;
 	filterPlaceholder?: string;
 	initialColumnVisibility?: VisibilityState;
-	maxHeight?: number;
 }
 
 export function DataTable<TData, TValue>({
@@ -38,12 +46,12 @@ export function DataTable<TData, TValue>({
 	filterColumn,
 	filterPlaceholder = "Filter...",
 	initialColumnVisibility = {},
-	maxHeight = 400,
 }: Readonly<DataTableProps<TData, TValue>>) {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] =
 		useState<VisibilityState>(initialColumnVisibility);
+	const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
 	const table = useReactTable({
 		data,
@@ -51,15 +59,17 @@ export function DataTable<TData, TValue>({
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
 		onColumnVisibilityChange: setColumnVisibility,
+		onPaginationChange: setPagination,
 		getCoreRowModel: getCoreRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
-		state: { sorting, columnFilters, columnVisibility },
+		getPaginationRowModel: getPaginationRowModel(),
+		state: { sorting, columnFilters, columnVisibility, pagination },
 	});
 
 	return (
 		<div className="flex flex-col gap-4">
-			<div className="flex items-center gap-2">
+			<div className="flex flex-wrap items-center gap-2">
 				{filterColumn && (
 					<Input
 						placeholder={filterPlaceholder}
@@ -94,7 +104,7 @@ export function DataTable<TData, TValue>({
 				</DropdownMenu>
 			</div>
 
-			<div className="overflow-auto rounded-md border" style={{ maxHeight }}>
+			<div className="overflow-auto rounded-md border">
 				<table className="w-full caption-bottom text-sm">
 					<TableHeader className="">
 						{table.getHeaderGroups().map((headerGroup) => (
@@ -129,6 +139,50 @@ export function DataTable<TData, TValue>({
 						)}
 					</TableBody>
 				</table>
+			</div>
+			<div className="text-muted-foreground flex items-center justify-between text-sm">
+				<div className="flex items-center gap-2">
+					<span>Baris per halaman</span>
+					<Select
+						items={[10, 25, 50, 75, 100, 150].map((n) => ({ label: String(n), value: String(n) }))}
+						value={String(table.getState().pagination.pageSize)}
+						onValueChange={(value) => table.setPageSize(Number(value))}
+					>
+						<SelectTrigger className="h-8 w-16">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectGroup>
+								{[10, 25, 50, 75, 100, 150].map((n) => (
+									<SelectItem key={n} value={String(n)}>
+										{n}
+									</SelectItem>
+								))}
+							</SelectGroup>
+						</SelectContent>
+					</Select>
+				</div>
+				<div className="flex items-center gap-2">
+					<span>
+						Halaman {table.getState().pagination.pageIndex + 1} dari {table.getPageCount()}
+					</span>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => table.previousPage()}
+						disabled={!table.getCanPreviousPage()}
+					>
+						<ChevronLeftIcon data-icon />
+					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => table.nextPage()}
+						disabled={!table.getCanNextPage()}
+					>
+						<ChevronRightIcon data-icon />
+					</Button>
+				</div>
 			</div>
 		</div>
 	);
