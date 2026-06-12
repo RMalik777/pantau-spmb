@@ -193,7 +193,9 @@ function Home() {
 							<Building2Icon className="size-4" />
 							Jumlah Madrasah
 						</CardDescription>
-						<CardTitle className="text-2xl tabular-nums">{madrasahData.length}</CardTitle>
+						<CardTitle className="text-2xl tabular-nums">
+							{madrasahData.length.toLocaleString()}
+						</CardTitle>
 					</CardHeader>
 				</Card>
 				<Card>
@@ -203,7 +205,7 @@ function Home() {
 							Jumlah Pendaftar
 						</CardDescription>
 						<CardTitle className="text-2xl tabular-nums">
-							{isLoading ? <Skeleton className="h-8 w-20" /> : totalPendaftar}
+							{isLoading ? <Skeleton className="h-8 w-20" /> : totalPendaftar.toLocaleString()}
 						</CardTitle>
 					</CardHeader>
 				</Card>
@@ -214,7 +216,11 @@ function Home() {
 							Nilai Tertinggi
 						</CardDescription>
 						<CardTitle className="text-2xl text-green-600 tabular-nums">
-							{isLoading ? <Skeleton className="h-8 w-24" /> : (highestScore?.toFixed(2) ?? "—")}
+							{isLoading ? (
+								<Skeleton className="h-8 w-24" />
+							) : (
+								(highestScore?.toLocaleString() ?? "—")
+							)}
 						</CardTitle>
 					</CardHeader>
 					{!isLoading && highestMadrasah && (
@@ -230,7 +236,11 @@ function Home() {
 							Nilai Terendah
 						</CardDescription>
 						<CardTitle className="text-2xl text-red-600 tabular-nums">
-							{isLoading ? <Skeleton className="h-8 w-24" /> : (lowestScore?.toFixed(2) ?? "—")}
+							{isLoading ? (
+								<Skeleton className="h-8 w-24" />
+							) : (
+								(lowestScore?.toLocaleString() ?? "—")
+							)}
 						</CardTitle>
 					</CardHeader>
 					{!isLoading && lowestMadrasah && (

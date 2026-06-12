@@ -1,24 +1,11 @@
-import { daftarList } from "@/lib/query/daftarList";
-import { madrasahList } from "@/lib/query/madrasahList";
-import { columns } from "@/lib/table/daftar";
-import type { Madrasah } from "@/lib/types";
-import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-	SelectLabel,
-} from "@/components/ui/select";
+import { useQueries, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { ArrowDownIcon, ArrowUpIcon, RefreshCwIcon, SearchIcon } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { useRef, useState } from "react";
+
 import { DataTable } from "@/components/data-table";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
 	Card,
 	CardAction,
@@ -27,40 +14,34 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { daftarList } from "@/lib/query/daftarList";
+import { madrasahList } from "@/lib/query/madrasahList";
+import { columns } from "@/lib/table/daftar";
+import type { Madrasah } from "@/lib/types";
 
 export const Route = createFileRoute("/(app)/list")({
 	component: Home,
 });
 
-function useIsVisible() {
-	const ref = useRef<HTMLDivElement>(null);
-	const [isVisible, setIsVisible] = useState(false);
-
-	useEffect(() => {
-		const el = ref.current;
-		if (!el) return;
-		const observer = new IntersectionObserver(([entry]) => {
-			if (entry.isIntersecting) {
-				setIsVisible(true);
-				observer.disconnect();
-			}
-		});
-		observer.observe(el);
-		return () => observer.disconnect();
-	}, []);
-
-	return { ref, isVisible };
-}
-
 function MadrasahCard({ item, nameSearch }: Readonly<{ item: Madrasah; nameSearch: string }>) {
-	const { ref, isVisible } = useIsVisible();
 	const queryClient = useQueryClient();
 	const forceLoad = nameSearch.length > 0;
 	const {
 		data: daftar,
 		isLoading,
 		isFetching,
-	} = useQuery({ ...daftarList(item.lokasi_id), enabled: isVisible || forceLoad });
+	} = useQuery({ ...daftarList(item.lokasi_id), enabled: true });
 
 	function handleRefresh() {
 		queryClient.invalidateQueries({
@@ -76,16 +57,24 @@ function MadrasahCard({ item, nameSearch }: Readonly<{ item: Madrasah; nameSearc
 	if (forceLoad && daftar && rows!.length === 0) return null;
 
 	return (
-		<div ref={ref}>
+		<div>
 			<Card>
 				<CardHeader>
 					<CardTitle>{item.nama}</CardTitle>
 					<CardDescription>
 						NPSN: {item.npsn} · {item.kota}, {item.propinsi}
 					</CardDescription>
-					<CardAction>
-						<Button variant="ghost" size="icon" onClick={handleRefresh} disabled={isFetching}>
+					<CardAction className="flex flex-row items-center gap-2">
+						<Link
+							to="/detail/$lokasi_id"
+							params={{ lokasi_id: item.lokasi_id.toLocaleString() }}
+							className={buttonVariants({ variant: "outline", className: "border-border!" })}
+						>
+							Detail
+						</Link>
+						<Button variant="outline" onClick={handleRefresh} disabled={isFetching}>
 							<RefreshCwIcon data-icon className={isFetching ? "animate-spin" : ""} />
+							Refresh
 						</Button>
 					</CardAction>
 				</CardHeader>
@@ -158,13 +147,39 @@ function Home() {
 	const [selected, setSelected] = useState<string | null>(null);
 	const [nameSearch, setNameSearch] = useState("");
 
-	const filtered = selected
+	const byMadrasah = selected
 		? madrasahData.filter((item) => String(item.lokasi_id) === selected)
 		: madrasahData;
 
+	const daftarResults = useQueries({
+		queries: byMadrasah.map((item) => daftarList(item.lokasi_id)),
+	});
+
+	const filtered = nameSearch
+		? byMadrasah.flatMap((item, i) => {
+				const daftar = daftarResults[i]?.data;
+				if (!daftar) return [];
+				const matches = daftar.data.some((row) =>
+					row[3].toLowerCase().includes(nameSearch.toLowerCase()),
+				);
+				return matches ? [{ item, isLoading: false }] : [];
+			})
+		: byMadrasah.map((item, i) => ({ item, isLoading: daftarResults[i]?.isLoading ?? true }));
+
+	const listRef = useRef<HTMLDivElement>(null);
+
+	const virtualizer = useWindowVirtualizer({
+		count: filtered.length,
+		estimateSize: () => 600,
+		overscan: 20,
+		scrollMargin: listRef.current?.offsetTop ?? 0,
+	});
+
+	const items = virtualizer.getVirtualItems();
+
 	return (
 		<main className="flex flex-col gap-4">
-			<h1>Pantau SPMB</h1>
+			<h1>List Sekolah</h1>
 			<div className="flex flex-col gap-2 sm:flex-row">
 				<div className="relative flex-1">
 					<SearchIcon className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
@@ -199,10 +214,47 @@ function Home() {
 					</SelectContent>
 				</Select>
 			</div>
-			<div className="flex flex-col gap-4">
-				{filtered.map((item) => (
-					<MadrasahCard key={item.lokasi_id} item={item} nameSearch={nameSearch} />
-				))}
+			<div ref={listRef} style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
+				<div
+					style={{
+						position: "absolute",
+						top: 0,
+						left: 0,
+						width: "100%",
+						willChange: "transform",
+						transform: `translateY(${(items[0]?.start ?? 0) - virtualizer.options.scrollMargin}px)`,
+					}}
+				>
+					{items.map((virtualItem) => {
+						const { item, isLoading } = filtered[virtualItem.index];
+						return (
+							<div
+								key={virtualItem.key}
+								data-index={virtualItem.index}
+								ref={virtualizer.measureElement}
+								className="pb-4"
+							>
+								{isLoading ? (
+									<Card>
+										<CardHeader>
+											<Skeleton className="h-5 w-48 rounded" />
+											<Skeleton className="h-4 w-64 rounded" />
+										</CardHeader>
+										<CardContent className="flex flex-col gap-4">
+											<div className="flex gap-4">
+												<Skeleton className="h-20 flex-1 rounded-lg" />
+												<Skeleton className="h-20 flex-1 rounded-lg" />
+											</div>
+											<Skeleton className="h-64 w-full rounded-lg" />
+										</CardContent>
+									</Card>
+								) : (
+									<MadrasahCard item={item} nameSearch={nameSearch} />
+								)}
+							</div>
+						);
+					})}
+				</div>
 			</div>
 		</main>
 	);
