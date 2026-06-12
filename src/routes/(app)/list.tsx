@@ -150,6 +150,8 @@ function MadrasahCard({ item, nameSearch }: Readonly<{ item: Madrasah; nameSearc
 										data={rows}
 										filterColumn={forceLoad ? undefined : "nama"}
 										filterPlaceholder="Cari nama..."
+										selectFilterColumn={forceLoad ? undefined : "asal_sekolah"}
+										selectFilterPlaceholder="Semua sekolah asal"
 										initialColumnVisibility={{ no_peserta: false }}
 									/>
 								</>

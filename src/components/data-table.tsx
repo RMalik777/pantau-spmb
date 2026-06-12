@@ -37,6 +37,8 @@ interface DataTableProps<TData, TValue> {
 	data: TData[];
 	filterColumn?: string;
 	filterPlaceholder?: string;
+	selectFilterColumn?: string;
+	selectFilterPlaceholder?: string;
 	initialColumnVisibility?: VisibilityState;
 }
 
@@ -45,6 +47,8 @@ export function DataTable<TData, TValue>({
 	data,
 	filterColumn,
 	filterPlaceholder = "Filter...",
+	selectFilterColumn,
+	selectFilterPlaceholder = "Semua",
 	initialColumnVisibility = {},
 }: Readonly<DataTableProps<TData, TValue>>) {
 	const [sorting, setSorting] = useState<SortingState>([]);
@@ -52,6 +56,16 @@ export function DataTable<TData, TValue>({
 	const [columnVisibility, setColumnVisibility] =
 		useState<VisibilityState>(initialColumnVisibility);
 	const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
+
+	const selectFilterOptions = selectFilterColumn
+		? Array.from(
+				new Set(
+					(data as Record<string, unknown>[])
+						.map((row) => row[selectFilterColumn])
+						.filter((v): v is string => typeof v === "string" && v.length > 0),
+				),
+			).sort()
+		: [];
 
 	const table = useReactTable({
 		data,
@@ -77,6 +91,30 @@ export function DataTable<TData, TValue>({
 						onChange={(e) => table.getColumn(filterColumn)?.setFilterValue(e.target.value)}
 						className="max-w-sm"
 					/>
+				)}
+				{selectFilterColumn && selectFilterOptions.length > 0 && (
+					<Select
+						value={
+							(table.getColumn(selectFilterColumn)?.getFilterValue() as string | undefined) ?? ""
+						}
+						onValueChange={(value) =>
+							table.getColumn(selectFilterColumn)?.setFilterValue(value || undefined)
+						}
+					>
+						<SelectTrigger className="w-full max-w-xs">
+							<SelectValue placeholder={selectFilterPlaceholder} />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectGroup>
+								<SelectItem value="">{selectFilterPlaceholder}</SelectItem>
+								{selectFilterOptions.map((opt) => (
+									<SelectItem key={opt} value={opt}>
+										{opt}
+									</SelectItem>
+								))}
+							</SelectGroup>
+						</SelectContent>
+					</Select>
 				)}
 				<DropdownMenu>
 					<DropdownMenuTrigger
