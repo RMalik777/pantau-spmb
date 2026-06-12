@@ -110,7 +110,7 @@ function MeCard({ me }: Readonly<{ me: MeData }>) {
 				</CardDescription>
 				<CardTitle className="text-xl">{me.nama}</CardTitle>
 			</CardHeader>
-			<CardContent className="flex flex-col gap-1 text-sm">
+			<CardContent className="gap flex flex-col text-sm">
 				<span className="text-muted-foreground">
 					Nilai: <span className="text-foreground font-medium tabular-nums">{me.nilai}</span>
 				</span>

@@ -14,8 +14,10 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
+	SelectLabel,
 } from "@/components/ui/select";
-import { ArrowDownIcon, ArrowUpIcon, RefreshCwIcon } from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon, RefreshCwIcon, SearchIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/data-table";
 import {
 	Card,
@@ -50,20 +52,28 @@ function useIsVisible() {
 	return { ref, isVisible };
 }
 
-function MadrasahCard({ item }: Readonly<{ item: Madrasah }>) {
+function MadrasahCard({ item, nameSearch }: Readonly<{ item: Madrasah; nameSearch: string }>) {
 	const { ref, isVisible } = useIsVisible();
 	const queryClient = useQueryClient();
+	const forceLoad = nameSearch.length > 0;
 	const {
 		data: daftar,
 		isLoading,
 		isFetching,
-	} = useQuery({ ...daftarList(item.lokasi_id), enabled: isVisible });
+	} = useQuery({ ...daftarList(item.lokasi_id), enabled: isVisible || forceLoad });
 
 	function handleRefresh() {
 		queryClient.invalidateQueries({
 			queryKey: daftarList(item.lokasi_id).queryKey,
 		});
 	}
+
+	let rows = daftar ? daftar.data : null;
+	if (rows && forceLoad) {
+		rows = rows.filter((row) => row[3].toLowerCase().includes(nameSearch.toLowerCase()));
+	}
+
+	if (forceLoad && daftar && rows!.length === 0) return null;
 
 	return (
 		<div ref={ref}>
@@ -89,43 +99,43 @@ function MadrasahCard({ item }: Readonly<{ item: Madrasah }>) {
 							<Skeleton className="h-64 w-full rounded-lg" />
 						</div>
 					)}
-					{daftar &&
+					{rows &&
 						(() => {
-							const scores = daftar.data
-								.map((row) => Number(row[5]))
-								.filter((n) => !Number.isNaN(n));
+							const scores = rows.map((row) => Number(row[5])).filter((n) => !Number.isNaN(n));
 							const highest = scores.length ? Math.max(...scores) : null;
 							const lowest = scores.length ? Math.min(...scores) : null;
 							return (
 								<>
-									<div className="flex flex-col justify-stretch gap-4 *:grow sm:flex-row">
-										<Card>
-											<CardHeader>
-												<CardDescription className="flex items-center gap-1 text-green-600">
-													<ArrowUpIcon />
-													Nilai Tertinggi
-												</CardDescription>
-												<CardTitle className="text-2xl font-semibold text-green-600 tabular-nums">
-													{highest?.toFixed(2) ?? "—"}
-												</CardTitle>
-											</CardHeader>
-										</Card>
-										<Card>
-											<CardHeader>
-												<CardDescription className="flex items-center gap-1 text-red-600">
-													<ArrowDownIcon />
-													Nilai Terendah
-												</CardDescription>
-												<CardTitle className="text-2xl font-semibold text-red-600 tabular-nums">
-													{lowest?.toFixed(2) ?? "—"}
-												</CardTitle>
-											</CardHeader>
-										</Card>
-									</div>
+									{!forceLoad && (
+										<div className="flex flex-col justify-stretch gap-4 *:grow sm:flex-row">
+											<Card>
+												<CardHeader>
+													<CardDescription className="flex items-center gap-1 text-green-600">
+														<ArrowUpIcon />
+														Nilai Tertinggi
+													</CardDescription>
+													<CardTitle className="text-2xl font-semibold text-green-600 tabular-nums">
+														{highest?.toFixed(2) ?? "—"}
+													</CardTitle>
+												</CardHeader>
+											</Card>
+											<Card>
+												<CardHeader>
+													<CardDescription className="flex items-center gap-1 text-red-600">
+														<ArrowDownIcon />
+														Nilai Terendah
+													</CardDescription>
+													<CardTitle className="text-2xl font-semibold text-red-600 tabular-nums">
+														{lowest?.toFixed(2) ?? "—"}
+													</CardTitle>
+												</CardHeader>
+											</Card>
+										</div>
+									)}
 									<DataTable
 										columns={columns}
-										data={daftar.data}
-										filterColumn="nama"
+										data={rows}
+										filterColumn={forceLoad ? undefined : "nama"}
 										filterPlaceholder="Cari nama..."
 										initialColumnVisibility={{ no_pendaftaran: false, id: false }}
 									/>
@@ -141,7 +151,12 @@ function MadrasahCard({ item }: Readonly<{ item: Madrasah }>) {
 function Home() {
 	const { data } = useSuspenseQuery(madrasahList);
 	const madrasahData = data as Madrasah[];
+	const mappedMadrasahData = madrasahData.map((item) => ({
+		label: item.nama,
+		value: String(item.lokasi_id),
+	}));
 	const [selected, setSelected] = useState<string | null>(null);
+	const [nameSearch, setNameSearch] = useState("");
 
 	const filtered = selected
 		? madrasahData.filter((item) => String(item.lokasi_id) === selected)
@@ -150,23 +165,43 @@ function Home() {
 	return (
 		<main className="flex flex-col gap-4">
 			<h1>Pantau SPMB</h1>
-			<Select value={selected} onValueChange={(value) => setSelected(value)}>
-				<SelectTrigger className="w-full max-w-sm">
-					<SelectValue placeholder="Semua madrasah" />
-				</SelectTrigger>
-				<SelectContent>
-					<SelectGroup>
-						{madrasahData.map((item) => (
-							<SelectItem key={item.lokasi_id} value={String(item.lokasi_id)}>
-								{item.nama}
-							</SelectItem>
-						))}
-					</SelectGroup>
-				</SelectContent>
-			</Select>
+			<div className="flex flex-col gap-2 sm:flex-row">
+				<div className="relative flex-1">
+					<SearchIcon className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+					<Input
+						placeholder="Cari nama peserta..."
+						value={nameSearch}
+						onChange={(e) => setNameSearch(e.target.value)}
+						className="pl-9"
+					/>
+				</div>
+				<Select
+					items={mappedMadrasahData}
+					value={selected}
+					onValueChange={(value) => setSelected(value)}
+				>
+					<SelectTrigger className="w-full sm:max-w-sm">
+						<SelectValue placeholder="Semua madrasah" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectGroup>
+							<SelectLabel>Semua Madrasah</SelectLabel>
+							<SelectItem value={null}>Tampilkan semua madrasah</SelectItem>
+						</SelectGroup>
+						<SelectGroup>
+							<SelectLabel>Madrasah</SelectLabel>
+							{madrasahData.map((item) => (
+								<SelectItem key={item.lokasi_id} value={String(item.lokasi_id)}>
+									{item.nama}
+								</SelectItem>
+							))}
+						</SelectGroup>
+					</SelectContent>
+				</Select>
+			</div>
 			<div className="flex flex-col gap-4">
 				{filtered.map((item) => (
-					<MadrasahCard key={item.lokasi_id} item={item} />
+					<MadrasahCard key={item.lokasi_id} item={item} nameSearch={nameSearch} />
 				))}
 			</div>
 		</main>
