@@ -410,7 +410,7 @@ function Home() {
 											},
 											{ label: "Terendah", madrasah: lowestMeanMadrasah, value: lowestMeanValue },
 										].map(({ label, madrasah, value }) => (
-											<div key={label} className="flex items-center justify-between gap-4 text-sm">
+											<div key={label} className="flex items-end justify-between gap-4 text-sm">
 												<div className="min-w-0">
 													<p className="text-muted-foreground">{label}</p>
 													<p className="truncate font-medium">{madrasah?.nama ?? "—"}</p>
@@ -439,7 +439,7 @@ function Home() {
 												value: lowestMedianValue,
 											},
 										].map(({ label, madrasah, value }) => (
-											<div key={label} className="flex items-center justify-between gap-4 text-sm">
+											<div key={label} className="flex items-end justify-between gap-4 text-sm">
 												<div className="min-w-0">
 													<p className="text-muted-foreground">{label}</p>
 													<p className="truncate font-medium">{madrasah?.nama ?? "—"}</p>
