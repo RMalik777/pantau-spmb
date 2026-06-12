@@ -369,12 +369,14 @@ function Home() {
 							<>
 								<div className="flex justify-between text-sm">
 									<span className="text-muted-foreground">Rata-rata</span>
-									<span className="font-medium tabular-nums">{overallMean?.toFixed(2) ?? "—"}</span>
+									<span className="font-medium tabular-nums">
+										{overallMean?.toLocaleString() ?? "—"}
+									</span>
 								</div>
 								<div className="flex justify-between text-sm">
 									<span className="text-muted-foreground">Median</span>
 									<span className="font-medium tabular-nums">
-										{overallMedian?.toFixed(2) ?? "—"}
+										{overallMedian?.toLocaleString() ?? "—"}
 									</span>
 								</div>
 							</>
@@ -385,47 +387,71 @@ function Home() {
 					<CardHeader>
 						<CardTitle className="text-base">Rata-rata & Median per Madrasah</CardTitle>
 					</CardHeader>
-					<CardContent className="flex flex-col gap-3">
+					<CardContent className="flex flex-col gap-4">
 						{isLoading ? (
 							<>
-								<Skeleton className="h-5 w-full" />
-								<Skeleton className="h-5 w-full" />
-								<Skeleton className="h-5 w-full" />
-								<Skeleton className="h-5 w-full" />
+								<Skeleton className="h-16 w-full" />
+								<Skeleton className="h-16 w-full" />
+								<Skeleton className="h-16 w-full" />
+								<Skeleton className="h-16 w-full" />
 							</>
 						) : (
-							[
-								{
-									label: "Rata-rata tertinggi",
-									madrasah: highestMeanMadrasah,
-									value: highestMeanValue,
-								},
-								{
-									label: "Rata-rata terendah",
-									madrasah: lowestMeanMadrasah,
-									value: lowestMeanValue,
-								},
-								{
-									label: "Median tertinggi",
-									madrasah: highestMedianMadrasah,
-									value: highestMedianValue,
-								},
-								{
-									label: "Median terendah",
-									madrasah: lowestMedianMadrasah,
-									value: lowestMedianValue,
-								},
-							].map(({ label, madrasah, value }) => (
-								<div key={label} className="flex items-center justify-between gap-4 text-sm">
-									<div className="min-w-0">
-										<p className="text-muted-foreground">{label}</p>
-										<p className="truncate font-medium">{madrasah?.nama ?? "—"}</p>
+							<>
+								<div>
+									<p className="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">
+										Rata-rata
+									</p>
+									<div className="flex flex-col gap-2">
+										{[
+											{
+												label: "Tertinggi",
+												madrasah: highestMeanMadrasah,
+												value: highestMeanValue,
+											},
+											{ label: "Terendah", madrasah: lowestMeanMadrasah, value: lowestMeanValue },
+										].map(({ label, madrasah, value }) => (
+											<div key={label} className="flex items-center justify-between gap-4 text-sm">
+												<div className="min-w-0">
+													<p className="text-muted-foreground">{label}</p>
+													<p className="truncate font-medium">{madrasah?.nama ?? "—"}</p>
+												</div>
+												<span className="shrink-0 font-medium tabular-nums">
+													{value?.toLocaleString() ?? "—"}
+												</span>
+											</div>
+										))}
 									</div>
-									<span className="shrink-0 font-medium tabular-nums">
-										{value?.toFixed(2) ?? "—"}
-									</span>
 								</div>
-							))
+								<div className="border-t pt-4">
+									<p className="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">
+										Median
+									</p>
+									<div className="flex flex-col gap-2">
+										{[
+											{
+												label: "Tertinggi",
+												madrasah: highestMedianMadrasah,
+												value: highestMedianValue,
+											},
+											{
+												label: "Terendah",
+												madrasah: lowestMedianMadrasah,
+												value: lowestMedianValue,
+											},
+										].map(({ label, madrasah, value }) => (
+											<div key={label} className="flex items-center justify-between gap-4 text-sm">
+												<div className="min-w-0">
+													<p className="text-muted-foreground">{label}</p>
+													<p className="truncate font-medium">{madrasah?.nama ?? "—"}</p>
+												</div>
+												<span className="shrink-0 font-medium tabular-nums">
+													{value?.toLocaleString() ?? "—"}
+												</span>
+											</div>
+										))}
+									</div>
+								</div>
+							</>
 						)}
 					</CardContent>
 				</Card>
