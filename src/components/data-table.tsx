@@ -21,14 +21,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -36,6 +29,7 @@ interface DataTableProps<TData, TValue> {
 	filterColumn?: string;
 	filterPlaceholder?: string;
 	initialColumnVisibility?: VisibilityState;
+	maxHeight?: number;
 }
 
 export function DataTable<TData, TValue>({
@@ -44,6 +38,7 @@ export function DataTable<TData, TValue>({
 	filterColumn,
 	filterPlaceholder = "Filter...",
 	initialColumnVisibility = {},
+	maxHeight = 400,
 }: Readonly<DataTableProps<TData, TValue>>) {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -99,13 +94,13 @@ export function DataTable<TData, TValue>({
 				</DropdownMenu>
 			</div>
 
-			<div className="overflow-hidden rounded-md border">
-				<Table>
+			<div className="overflow-auto rounded-md border" style={{ maxHeight }}>
+				<table className="w-full caption-bottom text-sm">
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => (
-									<TableHead key={header.id}>
+									<TableHead key={header.id} className="bg-background sticky top-0 z-10">
 										{header.isPlaceholder
 											? null
 											: flexRender(header.column.columnDef.header, header.getContext())}
@@ -133,7 +128,7 @@ export function DataTable<TData, TValue>({
 							</TableRow>
 						)}
 					</TableBody>
-				</Table>
+				</table>
 			</div>
 		</div>
 	);

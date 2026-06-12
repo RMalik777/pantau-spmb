@@ -9,50 +9,116 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as appRouteRouteImport } from './routes/(app)/route'
+import { Route as appIndexRouteImport } from './routes/(app)/index'
+import { Route as ApiMadrasahRouteImport } from './routes/api/madrasah'
+import { Route as ApiDaftarId_sekolahRouteImport } from './routes/api/daftar/$id_sekolah'
 
-const IndexRoute = IndexRouteImport.update({
+const appRouteRoute = appRouteRouteImport.update({
+  id: '/(app)',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const appIndexRoute = appIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const ApiMadrasahRoute = ApiMadrasahRouteImport.update({
+  id: '/api/madrasah',
+  path: '/api/madrasah',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDaftarId_sekolahRoute = ApiDaftarId_sekolahRouteImport.update({
+  id: '/api/daftar/$id_sekolah',
+  path: '/api/daftar/$id_sekolah',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/api/madrasah': typeof ApiMadrasahRoute
+  '/': typeof appIndexRoute
+  '/api/daftar/$id_sekolah': typeof ApiDaftarId_sekolahRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/api/madrasah': typeof ApiMadrasahRoute
+  '/': typeof appIndexRoute
+  '/api/daftar/$id_sekolah': typeof ApiDaftarId_sekolahRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/(app)': typeof appRouteRouteWithChildren
+  '/api/madrasah': typeof ApiMadrasahRoute
+  '/(app)/': typeof appIndexRoute
+  '/api/daftar/$id_sekolah': typeof ApiDaftarId_sekolahRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/api/madrasah' | '/' | '/api/daftar/$id_sekolah'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/api/madrasah' | '/' | '/api/daftar/$id_sekolah'
+  id:
+    | '__root__'
+    | '/(app)'
+    | '/api/madrasah'
+    | '/(app)/'
+    | '/api/daftar/$id_sekolah'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  appRouteRoute: typeof appRouteRouteWithChildren
+  ApiMadrasahRoute: typeof ApiMadrasahRoute
+  ApiDaftarId_sekolahRoute: typeof ApiDaftarId_sekolahRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/(app)': {
+      id: '/(app)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof appRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(app)/': {
+      id: '/(app)/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof appIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/api/madrasah': {
+      id: '/api/madrasah'
+      path: '/api/madrasah'
+      fullPath: '/api/madrasah'
+      preLoaderRoute: typeof ApiMadrasahRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/daftar/$id_sekolah': {
+      id: '/api/daftar/$id_sekolah'
+      path: '/api/daftar/$id_sekolah'
+      fullPath: '/api/daftar/$id_sekolah'
+      preLoaderRoute: typeof ApiDaftarId_sekolahRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
+interface appRouteRouteChildren {
+  appIndexRoute: typeof appIndexRoute
+}
+
+const appRouteRouteChildren: appRouteRouteChildren = {
+  appIndexRoute: appIndexRoute,
+}
+
+const appRouteRouteWithChildren = appRouteRoute._addFileChildren(
+  appRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  appRouteRoute: appRouteRouteWithChildren,
+  ApiMadrasahRoute: ApiMadrasahRoute,
+  ApiDaftarId_sekolahRoute: ApiDaftarId_sekolahRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
