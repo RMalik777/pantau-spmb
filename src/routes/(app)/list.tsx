@@ -2,7 +2,7 @@ import { useQueries, useQuery, useQueryClient, useSuspenseQuery } from "@tanstac
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { ArrowDownIcon, ArrowUpIcon, RefreshCwIcon, SearchIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { DataTable } from "@/components/data-table";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -60,19 +60,26 @@ function MadrasahCard({ item, nameSearch }: Readonly<{ item: Madrasah; nameSearc
 		<div>
 			<Card>
 				<CardHeader>
-					<CardTitle>{item.nama}</CardTitle>
+					<CardTitle className="text-lg font-semibold">{item.nama}</CardTitle>
 					<CardDescription>
 						NPSN: {item.npsn} · {item.kota}, {item.propinsi}
+						{daftar && (
+							<span className="text-foreground font-medium"> · {daftar.data.length} peserta</span>
+						)}
 					</CardDescription>
 					<CardAction className="flex flex-row items-center gap-2">
 						<Link
 							to="/detail/$lokasi_id"
 							params={{ lokasi_id: item.lokasi_id.toLocaleString() }}
-							className={buttonVariants({ variant: "outline", className: "border-border!" })}
+							className={buttonVariants({
+								variant: "outline",
+								size: "sm",
+								className: "border-border!",
+							})}
 						>
 							Detail
 						</Link>
-						<Button variant="outline" onClick={handleRefresh} disabled={isFetching}>
+						<Button variant="outline" size="sm" onClick={handleRefresh} disabled={isFetching}>
 							<RefreshCwIcon data-icon className={isFetching ? "animate-spin" : ""} />
 							Refresh
 						</Button>
@@ -145,7 +152,13 @@ function Home() {
 		value: String(item.lokasi_id),
 	}));
 	const [selected, setSelected] = useState<string | null>(null);
+	const [nameInput, setNameInput] = useState("");
 	const [nameSearch, setNameSearch] = useState("");
+
+	useEffect(() => {
+		const id = setTimeout(() => setNameSearch(nameInput), 300);
+		return () => clearTimeout(id);
+	}, [nameInput]);
 
 	const byMadrasah = selected
 		? madrasahData.filter((item) => String(item.lokasi_id) === selected)
@@ -179,14 +192,14 @@ function Home() {
 
 	return (
 		<main className="flex flex-col gap-4">
-			<h1>List Sekolah</h1>
+			<h1 className="text-xl font-medium">List Sekolah</h1>
 			<div className="flex flex-col gap-2 sm:flex-row">
 				<div className="relative flex-1">
 					<SearchIcon className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
 					<Input
 						placeholder="Cari nama peserta..."
-						value={nameSearch}
-						onChange={(e) => setNameSearch(e.target.value)}
+						value={nameInput}
+						onChange={(e) => setNameInput(e.target.value)}
 						className="pl-9"
 					/>
 				</div>
@@ -198,7 +211,7 @@ function Home() {
 					<SelectTrigger className="w-full sm:max-w-sm">
 						<SelectValue placeholder="Semua madrasah" />
 					</SelectTrigger>
-					<SelectContent>
+					<SelectContent className="max-h-4/5">
 						<SelectGroup>
 							<SelectLabel>Semua Madrasah</SelectLabel>
 							<SelectItem value={null}>Tampilkan semua madrasah</SelectItem>

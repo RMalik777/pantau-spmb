@@ -182,7 +182,7 @@ function Home() {
 
 	return (
 		<main className="flex flex-col gap-6">
-			<h1>Overview</h1>
+			<h1 className="text-xl font-medium">Home</h1>
 
 			{me && <MeCard me={me} />}
 
