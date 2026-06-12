@@ -10,7 +10,7 @@ const navItems = [
 ];
 export function Navbar() {
 	return (
-		<nav className="bg-background fixed inset-0 z-10 h-fit w-full border-b">
+		<nav className="bg-background fixed inset-0 z-20 h-fit w-full border-b">
 			<div className="flex h-fit flex-row items-center justify-between gap-4 p-2 px-6 sm:px-8 lg:px-16">
 				<p className="text-base font-bold sm:text-lg lg:text-xl">Pantau SPMB</p>
 				<div className="flex flex-row items-center justify-between gap-2">

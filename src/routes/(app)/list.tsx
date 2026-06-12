@@ -1,7 +1,13 @@
 import { useQueries, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { ArrowDownIcon, ArrowUpIcon, RefreshCwIcon, SearchIcon, UsersRoundIcon } from "lucide-react";
+import {
+	ArrowDownIcon,
+	ArrowUpIcon,
+	RefreshCwIcon,
+	SearchIcon,
+	UsersRoundIcon,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { DataTable } from "@/components/data-table";

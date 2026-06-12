@@ -1,19 +1,4 @@
-import { daftarList } from "@/lib/query/daftarList";
-import { dataDaftar } from "@/lib/query/dataDaftar";
-import { madrasahList } from "@/lib/query/madrasahList";
-import type { DetailSection, Madrasah } from "@/lib/types";
-import { useQueries, useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-	ArrowDownIcon,
-	ArrowUpIcon,
-	Building2Icon,
-	MapPinIcon,
-	TrophyIcon,
-	UsersIcon,
-} from "lucide-react";
+import { SimpleTable } from "@/components/simple-table";
 import { Badge } from "@/components/ui/badge";
 import {
 	Card,
@@ -23,6 +8,24 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { daftarList } from "@/lib/query/daftarList";
+import { dataDaftar } from "@/lib/query/dataDaftar";
+import { madrasahList } from "@/lib/query/madrasahList";
+import { madrasahStatColumns } from "@/lib/table/madrasah-stats";
+import type { MadrasahStat } from "@/lib/table/madrasah-stats";
+import type { DetailSection, Madrasah } from "@/lib/types";
+import { useQueries, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import {
+	ArrowDownIcon,
+	ArrowUpIcon,
+	Building2Icon,
+	MapPinIcon,
+	TrophyIcon,
+	UsersIcon,
+} from "lucide-react";
 
 export const Route = createFileRoute("/(app)/")({
 	component: Home,
@@ -133,6 +136,97 @@ function MeCard({ me }: Readonly<{ me: MeData }>) {
 	);
 }
 
+type DaftarQuery = { data?: { data: [number, string, string, string, string, string][] } };
+
+function median(scores: number[]): number | null {
+	if (!scores.length) return null;
+	const sorted = [...scores].sort((a, b) => a - b);
+	const mid = Math.floor(sorted.length / 2);
+	return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+}
+
+type Extreme = { madrasah: Madrasah | null; value: number | null };
+
+function updateMax(current: Extreme, candidate: Madrasah, value: number | null): Extreme {
+	if (value !== null && (current.value === null || value > current.value))
+		return { madrasah: candidate, value };
+	return current;
+}
+
+function updateMin(current: Extreme, candidate: Madrasah, value: number | null): Extreme {
+	if (value !== null && (current.value === null || value < current.value))
+		return { madrasah: candidate, value };
+	return current;
+}
+
+function computeStats(madrasahData: Madrasah[], daftarQueries: DaftarQuery[]) {
+	let most: Extreme = { madrasah: null, value: null };
+	let highScore: Extreme = { madrasah: null, value: null };
+	let lowScore: Extreme = { madrasah: null, value: null };
+	let highMean: Extreme = { madrasah: null, value: null };
+	let lowMean: Extreme = { madrasah: null, value: null };
+	let highMedian: Extreme = { madrasah: null, value: null };
+	let lowMedian: Extreme = { madrasah: null, value: null };
+	let totalPendaftar = 0;
+	const madrasahStats: MadrasahStat[] = [];
+	const allRawScores: number[] = [];
+
+	for (let i = 0; i < madrasahData.length; i++) {
+		const m = madrasahData[i];
+		const rows = daftarQueries[i]?.data?.data ?? [];
+		const scores = rows.map((row) => Number(row[5])).filter((n) => !Number.isNaN(n));
+		const max = scores.length ? Math.max(...scores) : null;
+		const min = scores.length ? Math.min(...scores) : null;
+		const mean = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
+		const med = median(scores);
+
+		totalPendaftar += rows.length;
+		allRawScores.push(...scores);
+
+		if (rows.length > (most.value ?? -1)) most = { madrasah: m, value: rows.length };
+		highScore = updateMax(highScore, m, max);
+		lowScore = updateMin(lowScore, m, min);
+		highMean = updateMax(highMean, m, mean);
+		lowMean = updateMin(lowMean, m, mean);
+		highMedian = updateMax(highMedian, m, med);
+		lowMedian = updateMin(lowMedian, m, med);
+
+		madrasahStats.push({
+			nama: m.nama,
+			jumlah: rows.length,
+			mean,
+			median: med,
+			highest: max,
+			lowest: min,
+		});
+	}
+
+	const overallMean = allRawScores.length
+		? allRawScores.reduce((a, b) => a + b, 0) / allRawScores.length
+		: null;
+
+	return {
+		highestScore: highScore.value,
+		highestMadrasah: highScore.madrasah,
+		lowestScore: lowScore.value,
+		lowestMadrasah: lowScore.madrasah,
+		mostMadrasah: most.madrasah,
+		mostCount: most.value ?? 0,
+		totalPendaftar,
+		madrasahStats,
+		overallMean,
+		overallMedian: median(allRawScores),
+		highestMeanMadrasah: highMean.madrasah,
+		highestMeanValue: highMean.value,
+		lowestMeanMadrasah: lowMean.madrasah,
+		lowestMeanValue: lowMean.value,
+		highestMedianMadrasah: highMedian.madrasah,
+		highestMedianValue: highMedian.value,
+		lowestMedianMadrasah: lowMedian.madrasah,
+		lowestMedianValue: lowMedian.value,
+	};
+}
+
 function Home() {
 	const { data } = useSuspenseQuery(madrasahList);
 	const madrasahData = data as Madrasah[];
@@ -156,29 +250,26 @@ function Home() {
 
 	const isLoading = daftarQueries.some((q) => q.isLoading);
 
-	let highestScore: number | null = null;
-	let highestMadrasah: Madrasah | null = null;
-	let lowestScore: number | null = null;
-	let lowestMadrasah: Madrasah | null = null;
-
-	for (let i = 0; i < daftarQueries.length; i++) {
-		const daftar = daftarQueries[i].data;
-		if (!daftar) continue;
-		const scores = daftar.data.map((row) => Number(row[5])).filter((n) => !Number.isNaN(n));
-		if (!scores.length) continue;
-		const max = Math.max(...scores);
-		const min = Math.min(...scores);
-		if (highestScore === null || max > highestScore) {
-			highestScore = max;
-			highestMadrasah = madrasahData[i];
-		}
-		if (lowestScore === null || min < lowestScore) {
-			lowestScore = min;
-			lowestMadrasah = madrasahData[i];
-		}
-	}
-
-	const totalPendaftar = daftarQueries.reduce((sum, q) => sum + (q.data?.data.length ?? 0), 0);
+	const {
+		highestScore,
+		highestMadrasah,
+		lowestScore,
+		lowestMadrasah,
+		mostMadrasah,
+		mostCount,
+		totalPendaftar,
+		madrasahStats,
+		overallMean,
+		overallMedian,
+		highestMeanMadrasah,
+		highestMeanValue,
+		lowestMeanMadrasah,
+		lowestMeanValue,
+		highestMedianMadrasah,
+		highestMedianValue,
+		lowestMedianMadrasah,
+		lowestMedianValue,
+	} = computeStats(madrasahData, daftarQueries);
 
 	return (
 		<main className="flex flex-col gap-6">
@@ -208,6 +299,14 @@ function Home() {
 							{isLoading ? <Skeleton className="h-8 w-20" /> : totalPendaftar.toLocaleString()}
 						</CardTitle>
 					</CardHeader>
+					{!isLoading && mostMadrasah && (
+						<CardContent>
+							<p className="text-muted-foreground text-xs">Terbanyak</p>
+							<p className="truncate text-xs font-medium">
+								{mostMadrasah.nama} · {mostCount.toLocaleString()}
+							</p>
+						</CardContent>
+					)}
 				</Card>
 				<Card>
 					<CardHeader>
@@ -225,7 +324,8 @@ function Home() {
 					</CardHeader>
 					{!isLoading && highestMadrasah && (
 						<CardContent>
-							<p className="text-muted-foreground truncate text-xs">{highestMadrasah.nama}</p>
+							<p className="text-muted-foreground text-xs">Tertinggi di</p>
+							<p className="truncate text-xs font-medium">{highestMadrasah.nama}</p>
 						</CardContent>
 					)}
 				</Card>
@@ -245,11 +345,102 @@ function Home() {
 					</CardHeader>
 					{!isLoading && lowestMadrasah && (
 						<CardContent>
-							<p className="text-muted-foreground truncate text-xs">{lowestMadrasah.nama}</p>
+							<p className="text-muted-foreground text-xs">Terendah di</p>
+							<p className="truncate text-xs font-medium">{lowestMadrasah.nama}</p>
 						</CardContent>
 					)}
 				</Card>
 			</div>
+
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+				<Card>
+					<CardHeader>
+						<CardTitle className="text-base">Statistik Keseluruhan</CardTitle>
+					</CardHeader>
+					<CardContent className="flex flex-col gap-2">
+						{isLoading ? (
+							<>
+								<Skeleton className="h-5 w-40" />
+								<Skeleton className="h-5 w-40" />
+							</>
+						) : (
+							<>
+								<div className="flex justify-between text-sm">
+									<span className="text-muted-foreground">Rata-rata</span>
+									<span className="font-medium tabular-nums">{overallMean?.toFixed(2) ?? "—"}</span>
+								</div>
+								<div className="flex justify-between text-sm">
+									<span className="text-muted-foreground">Median</span>
+									<span className="font-medium tabular-nums">
+										{overallMedian?.toFixed(2) ?? "—"}
+									</span>
+								</div>
+							</>
+						)}
+					</CardContent>
+				</Card>
+				<Card>
+					<CardHeader>
+						<CardTitle className="text-base">Rata-rata & Median per Madrasah</CardTitle>
+					</CardHeader>
+					<CardContent className="flex flex-col gap-3">
+						{isLoading ? (
+							<>
+								<Skeleton className="h-5 w-full" />
+								<Skeleton className="h-5 w-full" />
+								<Skeleton className="h-5 w-full" />
+								<Skeleton className="h-5 w-full" />
+							</>
+						) : (
+							[
+								{
+									label: "Rata-rata tertinggi",
+									madrasah: highestMeanMadrasah,
+									value: highestMeanValue,
+								},
+								{
+									label: "Rata-rata terendah",
+									madrasah: lowestMeanMadrasah,
+									value: lowestMeanValue,
+								},
+								{
+									label: "Median tertinggi",
+									madrasah: highestMedianMadrasah,
+									value: highestMedianValue,
+								},
+								{
+									label: "Median terendah",
+									madrasah: lowestMedianMadrasah,
+									value: lowestMedianValue,
+								},
+							].map(({ label, madrasah, value }) => (
+								<div key={label} className="flex items-center justify-between gap-4 text-sm">
+									<div className="min-w-0">
+										<p className="text-muted-foreground">{label}</p>
+										<p className="truncate font-medium">{madrasah?.nama ?? "—"}</p>
+									</div>
+									<span className="shrink-0 font-medium tabular-nums">
+										{value?.toFixed(2) ?? "—"}
+									</span>
+								</div>
+							))
+						)}
+					</CardContent>
+				</Card>
+			</div>
+
+			<Card>
+				<CardHeader>
+					<CardTitle className="text-base">Statistik per Madrasah</CardTitle>
+				</CardHeader>
+				<CardContent>
+					{isLoading ? (
+						<Skeleton className="h-48 w-full" />
+					) : (
+						<SimpleTable columns={madrasahStatColumns} data={madrasahStats} />
+					)}
+				</CardContent>
+			</Card>
 		</main>
 	);
 }
