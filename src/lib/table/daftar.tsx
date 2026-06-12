@@ -32,7 +32,7 @@ export const columns: ColumnDef<DaftarRow>[] = [
 		size: 60,
 	},
 	{
-		id: "ID",
+		id: "id",
 		accessorFn: (row) => row[1],
 		header: "ID",
 		size: 100,
