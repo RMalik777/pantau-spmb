@@ -77,7 +77,7 @@ export const columns: ColumnDef<DaftarRow>[] = [
 							}}
 						>
 							<UserIcon data-icon="inline-start" />
-							Set as me
+							Set ini sebagai Saya
 						</DropdownMenuItem>
 					</DropdownMenuGroup>
 				</DropdownMenuContent>
