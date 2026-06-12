@@ -13,7 +13,7 @@ function RouteComponent() {
 	return (
 		<>
 			<Navbar />
-			<div className="px-6 py-16 pb-32 sm:px-8 lg:px-16">
+			<div className="mx-auto max-w-7xl px-6 pt-20 pb-24 sm:px-8 lg:px-16">
 				<Outlet />
 			</div>
 		</>

@@ -1,21 +1,27 @@
 import { Link } from "@tanstack/react-router";
-import { buttonVariants } from "@/components/ui/button";
 
 const navItems = [
 	{ name: "Home", to: "/" },
-	{
-		name: "List Madrasah",
-		to: "/list",
-	},
+	{ name: "List Madrasah", to: "/list" },
 ];
+
 export function Navbar() {
 	return (
 		<nav className="bg-background fixed inset-0 z-20 h-fit w-full border-b">
-			<div className="flex h-fit flex-row items-center justify-between gap-4 p-2 px-6 sm:px-8 lg:px-16">
-				<p className="text-base font-bold sm:text-lg lg:text-xl">Pantau SPMB</p>
-				<div className="flex flex-row items-center justify-between gap-2">
+			<div className="mx-auto flex h-fit max-w-7xl flex-row items-center justify-between gap-4 px-6 py-3 sm:px-8 lg:px-16">
+				<Link to="/" className="group flex items-center gap-2">
+					<span className="bg-primary size-6 rounded-md" />
+					<p className="text-primary text-base font-bold sm:text-lg">Pantau SPMB</p>
+				</Link>
+				<div className="flex flex-row items-center gap-1">
 					{navItems.map((item) => (
-						<Link key={item.to} to={item.to} className={buttonVariants({ variant: "link" })}>
+						<Link
+							key={item.to}
+							to={item.to}
+							className="text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+							activeProps={{ className: "bg-accent text-foreground!" }}
+							activeOptions={{ exact: item.to === "/" }}
+						>
 							{item.name}
 						</Link>
 					))}

@@ -106,7 +106,7 @@ function MeCard({ me }: Readonly<{ me: MeData }>) {
 	const mePosition = detailData ? extractPosition(detailData.data) : null;
 
 	return (
-		<Card>
+		<Card className="border-primary/30 bg-primary/5">
 			<CardHeader>
 				<CardDescription className="flex w-full justify-between">
 					Data Saya <Badge variant="outline">{mePosition?.status}</Badge>
@@ -275,14 +275,19 @@ function Home() {
 
 	return (
 		<main className="flex flex-col gap-6">
-			<h1 className="text-xl font-medium">Home</h1>
+			<div>
+				<h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+				<p className="text-muted-foreground mt-1 text-sm">
+					Pantau statistik SPMB Madrasah secara real-time.
+				</p>
+			</div>
 
 			{me && <MeCard me={me} />}
 
 			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 				<Card>
 					<CardHeader>
-						<CardDescription className="flex items-center gap-1">
+						<CardDescription className="flex items-center gap-1.5">
 							<Building2Icon className="size-4" />
 							Jumlah Madrasah
 						</CardDescription>
@@ -293,7 +298,7 @@ function Home() {
 				</Card>
 				<Card>
 					<CardHeader>
-						<CardDescription className="flex items-center gap-1">
+						<CardDescription className="flex items-center gap-1.5">
 							<UsersIcon className="size-4" />
 							Jumlah Pendaftar
 						</CardDescription>
@@ -312,7 +317,7 @@ function Home() {
 				</Card>
 				<Card>
 					<CardHeader>
-						<CardDescription className="flex items-center gap-1 text-green-600">
+						<CardDescription>
 							<ArrowUpIcon className="size-4" />
 							Nilai Tertinggi
 						</CardDescription>
@@ -333,7 +338,7 @@ function Home() {
 				</Card>
 				<Card>
 					<CardHeader>
-						<CardDescription className="flex items-center gap-1 text-red-600">
+						<CardDescription className="flex items-center gap-1.5 text-red-600">
 							<ArrowDownIcon className="size-4" />
 							Nilai Terendah
 						</CardDescription>
