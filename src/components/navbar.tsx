@@ -1,0 +1,24 @@
+import { Link } from "@tanstack/react-router";
+import { buttonVariants } from "@/components/ui/button";
+
+const navItems = [
+	{ name: "Home", to: "/" },
+	{
+		name: "List Madrasah",
+		to: "/list",
+	},
+];
+export function Navbar() {
+	return (
+		<nav className="bg-background fixed inset-0 h-fit w-full">
+			<div className="flex h-fit flex-row items-start gap-4 p-4 sm:px-8 lg:px-16">
+				<p className="text-xl font-bold">Pantau SPMB</p>
+				{navItems.map((item) => (
+					<Link key={item.to} to={item.to} className={buttonVariants({ variant: "link" })}>
+						{item.name}
+					</Link>
+				))}
+			</div>
+		</nav>
+	);
+}

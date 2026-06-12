@@ -32,6 +32,12 @@ export const columns: ColumnDef<DaftarRow>[] = [
 		size: 60,
 	},
 	{
+		id: "ID",
+		accessorFn: (row) => row[1],
+		header: "ID",
+		size: 100,
+	},
+	{
 		id: "nama",
 		accessorFn: (row) => decodeHtml(row[3]),
 		header: ({ column }) => <SortHeader label="Nama" column={column} />,
@@ -51,7 +57,7 @@ export const columns: ColumnDef<DaftarRow>[] = [
 	},
 	{
 		id: "no_pendaftaran",
-		accessorFn: (row) => row[1],
+		accessorFn: (row) => row[2],
 		header: ({ column }) => <SortHeader label="No. Daftar" column={column} />,
 		size: 150,
 	},
