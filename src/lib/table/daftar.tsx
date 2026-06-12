@@ -28,7 +28,7 @@ export const columns: ColumnDef<DaftarRow>[] = [
 	{
 		id: "rank",
 		accessorFn: (row) => row[0],
-		header: "No.",
+		header: ({ column }) => <SortHeader label="No" column={column} />,
 		size: 60,
 	},
 	{

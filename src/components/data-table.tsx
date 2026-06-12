@@ -141,47 +141,55 @@ export function DataTable<TData, TValue>({
 				</table>
 			</div>
 			<div className="text-muted-foreground flex items-center justify-between text-sm">
-				<div className="flex items-center gap-2">
-					<span>Baris per halaman</span>
+				<div className="flex flex-col items-center gap-2 sm:flex-row">
+					<span>Jumlah Baris</span>
 					<Select
-						items={[10, 25, 50, 75, 100, 150].map((n) => ({ label: String(n), value: String(n) }))}
+						items={[10, 25, 50, 75, 100, data.length].map((n) => ({
+							label: n === data.length ? "Semua" : String(n),
+							value: String(n),
+						}))}
 						value={String(table.getState().pagination.pageSize)}
 						onValueChange={(value) => table.setPageSize(Number(value))}
 					>
-						<SelectTrigger className="h-8 w-16">
-							<SelectValue />
+						<SelectTrigger className="h-8 w-24">
+							<SelectValue placeholder="Jumlah baris" />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectGroup>
-								{[10, 25, 50, 75, 100, 150].map((n) => (
+								{[10, 25, 50, 75, 100].map((n) => (
 									<SelectItem key={n} value={String(n)}>
 										{n}
 									</SelectItem>
 								))}
+								<SelectItem value={String(data.length)}>Semua</SelectItem>
 							</SelectGroup>
 						</SelectContent>
 					</Select>
 				</div>
-				<div className="flex items-center gap-2">
+				<div className="flex flex-col items-center gap-2 sm:flex-row">
 					<span>
 						Halaman {table.getState().pagination.pageIndex + 1} dari {table.getPageCount()}
 					</span>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => table.previousPage()}
-						disabled={!table.getCanPreviousPage()}
-					>
-						<ChevronLeftIcon data-icon />
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => table.nextPage()}
-						disabled={!table.getCanNextPage()}
-					>
-						<ChevronRightIcon data-icon />
-					</Button>
+					<div className="flex items-center gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => table.previousPage()}
+							disabled={!table.getCanPreviousPage()}
+						>
+							<ChevronLeftIcon data-icon />
+							<span className="sr-only">Sebelumnya</span>
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => table.nextPage()}
+							disabled={!table.getCanNextPage()}
+						>
+							<ChevronRightIcon data-icon />
+							<span className="sr-only">Selanjutnya</span>
+						</Button>
+					</div>
 				</div>
 			</div>
 		</div>

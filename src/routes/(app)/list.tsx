@@ -1,7 +1,7 @@
 import { useQueries, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { ArrowDownIcon, ArrowUpIcon, RefreshCwIcon, SearchIcon } from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon, RefreshCwIcon, SearchIcon, UsersRoundIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { DataTable } from "@/components/data-table";
@@ -63,9 +63,6 @@ function MadrasahCard({ item, nameSearch }: Readonly<{ item: Madrasah; nameSearc
 					<CardTitle className="text-lg font-semibold">{item.nama}</CardTitle>
 					<CardDescription>
 						NPSN: {item.npsn} · {item.kota}, {item.propinsi}
-						{daftar && (
-							<span className="text-foreground font-medium"> · {daftar.data.length} peserta</span>
-						)}
 					</CardDescription>
 					<CardAction className="flex flex-row items-center gap-2">
 						<Link
@@ -123,6 +120,17 @@ function MadrasahCard({ item, nameSearch }: Readonly<{ item: Madrasah; nameSearc
 													</CardDescription>
 													<CardTitle className="text-2xl font-semibold text-red-600 tabular-nums">
 														{lowest?.toFixed(2) ?? "—"}
+													</CardTitle>
+												</CardHeader>
+											</Card>
+											<Card>
+												<CardHeader>
+													<CardDescription className="flex items-center gap-1">
+														<UsersRoundIcon />
+														Jumlah Peserta
+													</CardDescription>
+													<CardTitle className="text-2xl font-semibold tabular-nums">
+														{daftar!.data.length}
 													</CardTitle>
 												</CardHeader>
 											</Card>
