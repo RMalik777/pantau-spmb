@@ -8,9 +8,9 @@ const navItems = [
 export function Navbar() {
 	return (
 		<nav className="bg-background fixed inset-0 z-20 h-fit w-full border-b">
-			<div className="mx-auto flex h-fit max-w-7xl flex-row items-center justify-between gap-4 px-6 py-3 sm:px-8 lg:px-16">
+			<div className="mx-auto flex h-fit flex-row items-center justify-between gap-2 px-6 py-3 sm:gap-4 sm:px-8 lg:px-16">
 				<Link to="/" className="group flex items-center gap-2">
-					<span className="bg-primary size-6 rounded-md" />
+					<span className="bg-primary size-4 rounded-md sm:size-6" />
 					<p className="text-primary text-base font-bold sm:text-lg">Pantau SPMB</p>
 				</Link>
 				<div className="flex flex-row items-center gap-1">

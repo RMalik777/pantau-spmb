@@ -106,7 +106,7 @@ function MeCard({ me }: Readonly<{ me: MeData }>) {
 	const mePosition = detailData ? extractPosition(detailData.data) : null;
 
 	return (
-		<Card className="border-primary/30 bg-primary/5">
+		<Card>
 			<CardHeader>
 				<CardDescription className="flex w-full justify-between">
 					Data Saya <Badge variant="outline">{mePosition?.status}</Badge>
@@ -317,7 +317,7 @@ function Home() {
 				</Card>
 				<Card>
 					<CardHeader>
-						<CardDescription>
+						<CardDescription className="flex items-center gap-1.5 text-red-600">
 							<ArrowUpIcon className="size-4" />
 							Nilai Tertinggi
 						</CardDescription>

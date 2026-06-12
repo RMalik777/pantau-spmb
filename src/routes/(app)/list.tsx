@@ -194,7 +194,7 @@ function Home() {
 				const daftar = daftarResults[i]?.data;
 				if (!daftar) return [];
 				const matches = daftar.data.some((row) =>
-					row.nama.toLowerCase().includes(nameSearch.toLowerCase()),
+					row.nama.toLowerCase().includes(nameSearch.trim().toLowerCase()),
 				);
 				return matches ? [{ item, isLoading: false }] : [];
 			})
